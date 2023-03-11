@@ -1,0 +1,65 @@
+package com.mintos.task.controller.impl;
+
+import com.mintos.task.common.api.GenericResponse;
+import com.mintos.task.controller.response.WeatherData;
+import com.mintos.task.service.WeatherService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class WeatherControllerImplTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private WeatherService weatherService;
+
+    @Test
+    void getWeatherData() throws Exception {
+        when(weatherService.getWeatherData(anyString())).thenReturn(GenericResponse.<WeatherData>builder().success(true).build());
+
+        mockMvc.perform(get("/weather"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true));
+    }
+
+    @Test
+    void getWeatherDataRecords() throws Exception {
+        when(weatherService.getWeatherDataRecords()).thenReturn(GenericResponse.<List<WeatherData>>builder()
+                .success(true)
+                .response(Arrays.asList(
+                        WeatherData.builder().isDay(true).build(),
+                        WeatherData.builder().isDay(true).build()
+                )).build());
+
+        mockMvc.perform(get("/weather_records"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.response", hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.response[0].day").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.response[1].day").value(true));
+    }
+}
