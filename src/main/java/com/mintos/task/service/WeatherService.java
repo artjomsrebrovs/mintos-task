@@ -9,5 +9,5 @@ public interface WeatherService {
 
     GenericResponse<WeatherData> getWeatherData(String ipAddress);
 
-    GenericResponse<List<WeatherData>> getWeatherDataRecords();
+    List<WeatherData> getWeatherDataRecords();
 }

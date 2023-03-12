@@ -3,6 +3,7 @@ package com.mintos.task.controller.impl;
 import com.mintos.task.common.api.GenericResponse;
 import com.mintos.task.controller.response.WeatherData;
 import com.mintos.task.service.WeatherService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,6 +34,7 @@ class WeatherControllerImplTest {
     private WeatherService weatherService;
 
     @Test
+    @DisplayName("Should return information about current weather conditions")
     void getWeatherData() throws Exception {
         when(weatherService.getWeatherData(anyString())).thenReturn(GenericResponse.<WeatherData>builder().success(true).build());
 
@@ -45,21 +46,19 @@ class WeatherControllerImplTest {
     }
 
     @Test
+    @DisplayName("Should return two weather data historical records")
     void getWeatherDataRecords() throws Exception {
-        when(weatherService.getWeatherDataRecords()).thenReturn(GenericResponse.<List<WeatherData>>builder()
-                .success(true)
-                .response(Arrays.asList(
-                        WeatherData.builder().isDay(true).build(),
-                        WeatherData.builder().isDay(true).build()
-                )).build());
+        when(weatherService.getWeatherDataRecords()).thenReturn(Arrays.asList(
+                WeatherData.builder().isDay(true).build(),
+                WeatherData.builder().isDay(true).build()
+        ));
 
         mockMvc.perform(get("/weather_records"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.response", hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.response[0].day").value(true))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.response[1].day").value(true));
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].day").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].day").value(true));
     }
 }

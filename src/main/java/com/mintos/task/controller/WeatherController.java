@@ -11,5 +11,5 @@ public interface WeatherController {
 
     ResponseEntity<GenericResponse<WeatherData>> getWeatherData(HttpServletRequest request);
 
-    ResponseEntity<GenericResponse<List<WeatherData>>> getWeatherDataRecords();
+    ResponseEntity<List<WeatherData>> getWeatherDataRecords();
 }

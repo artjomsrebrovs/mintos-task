@@ -39,53 +39,63 @@ public class WeatherServiceImpl implements WeatherService {
         final GenericResponse<LocationDataTO> locationDataResponse = ip2LocClient.getLocationData(ipAddress);
 
         final GenericResponse<WeatherData> response;
+        final WeatherDataDO weatherDataEntity;
 
         if (locationDataResponse.isSuccess()) {
             final LocationDataTO locationData = locationDataResponse.getResponse();
             final GenericResponse<WeatherDataTO> weatherDataResponse = weatherApiClient.getWeatherData(locationData.getLatitude(), locationData.getLongitude());
 
             if (weatherDataResponse.isSuccess()) {
-                final WeatherDataDO weatherDataEntity = saveWeatherData(ipAddress, locationData, weatherDataResponse.getResponse());
-                response = prepareWeatherDataResponse(weatherDataEntity);
-                log.info(String.format("Weather data stored successfully for ip address: %s", ipAddress));
+                weatherDataEntity = mapWeatherDataEntity(ipAddress, locationData, weatherDataResponse.getResponse());
+                response = prepareWeatherAndLocationDataResponse(ipAddress, weatherDataEntity);
 
             } else {
-                final String errorMessage = String.format("Weather data response was not successful, for ip: %s", ipAddress);
-                response = GenericResponse.<WeatherData>builder().errorMessage(errorMessage).build();
-                log.warning(errorMessage);
+                weatherDataEntity = mapWeatherDataEntity(ipAddress, locationData);
+                response = prepareLocationDataResponse(ipAddress, weatherDataEntity);
             }
 
         } else {
-            final String errorMessage = String.format("Location data response was not successful, for ip: %s", ipAddress);
-            response = GenericResponse.<WeatherData>builder().errorMessage(errorMessage).build();
-            log.warning(errorMessage);
+            weatherDataEntity = mapWeatherDataEntity(ipAddress);
+            response = prepareEmptyDataResponse(ipAddress);
         }
+
+        final Long weatherDataId = weatherDataRepository.save(weatherDataEntity).getId();
+        log.info(String.format("Weather data stored successfully for ip address: %s, with id: %s", ipAddress, weatherDataId));
 
         return response;
     }
 
-    private WeatherDataDO saveWeatherData(final String ipAddress, final LocationDataTO locationData, final WeatherDataTO weatherDataTO) {
-        final WeatherDataDO weatherDataEntity = mapWeatherDataEntity(ipAddress, locationData, weatherDataTO);
-        return weatherDataRepository.save(weatherDataEntity);
-    }
-
-    private GenericResponse<WeatherData> prepareWeatherDataResponse(final WeatherDataDO weatherDataEntity) {
-        final WeatherData weatherData = mapWeatherDataResponse(weatherDataEntity);
+    private GenericResponse<WeatherData> prepareWeatherAndLocationDataResponse(final String ipAddress, final WeatherDataDO weatherDataEntity) {
+        log.info(String.format("Weather and location data responses were success for ip address: %s", ipAddress));
+        final WeatherData weatherData = mapWeatherAndLocationDataResponse(weatherDataEntity);
         return GenericResponse.<WeatherData>builder().success(true).response(weatherData).build();
     }
 
+    private GenericResponse<WeatherData> prepareLocationDataResponse(final String ipAddress, final WeatherDataDO weatherDataEntity) {
+        final String errorMessage = String.format("Weather data response was not successful, for ip: %s", ipAddress);
+        log.warning(errorMessage);
+        final WeatherData weatherData = mapLocationDataResponse(weatherDataEntity);
+        return GenericResponse.<WeatherData>builder().errorMessage(errorMessage).response(weatherData).build();
+    }
+
+    private GenericResponse<WeatherData> prepareEmptyDataResponse(final String ipAddress) {
+        final String errorMessage = String.format("Location data response was not successful, for ip: %s", ipAddress);
+        log.warning(errorMessage);
+        return GenericResponse.<WeatherData>builder().errorMessage(errorMessage).build();
+    }
+
     @Override
-    public GenericResponse<List<WeatherData>> getWeatherDataRecords() {
+    public List<WeatherData> getWeatherDataRecords() {
         final List<WeatherDataDO> weatherDataEntities = weatherDataRepository.findAll();
-        final List<WeatherData> weatherData = weatherDataEntities.stream().map(this::mapWeatherDataResponse).collect(Collectors.toList());
-        return GenericResponse.<List<WeatherData>>builder().success(true).response(weatherData).build();
+        return weatherDataEntities.stream().map(this::mapWeatherAndLocationDataResponse).collect(Collectors.toList());
     }
 
     private WeatherDataDO mapWeatherDataEntity(final String ipAddress, final LocationDataTO locationData, final WeatherDataTO weatherDataTO) {
         return WeatherDataDO.builder()
                 .clientIp(ipAddress)
                 .requestDate(LocalDateTime.now())
-                .requestSuccess(true)
+                .ip2LocRequestSuccess(true)
+                .weatherApiRequestSuccess(true)
                 .city(locationData.getCity())
                 .latitude(locationData.getLatitude())
                 .longitude(locationData.getLongitude())
@@ -114,7 +124,29 @@ public class WeatherServiceImpl implements WeatherService {
                 .build();
     }
 
-    private WeatherData mapWeatherDataResponse(final WeatherDataDO weatherDataEntity) {
+    private WeatherDataDO mapWeatherDataEntity(final String ipAddress, final LocationDataTO locationData) {
+        return WeatherDataDO.builder()
+                .clientIp(ipAddress)
+                .requestDate(LocalDateTime.now())
+                .ip2LocRequestSuccess(true)
+                .weatherApiRequestSuccess(false)
+                .city(locationData.getCity())
+                .latitude(locationData.getLatitude())
+                .longitude(locationData.getLongitude())
+                .country(locationData.getCountry())
+                .build();
+    }
+
+    private WeatherDataDO mapWeatherDataEntity(final String ipAddress) {
+        return WeatherDataDO.builder()
+                .clientIp(ipAddress)
+                .requestDate(LocalDateTime.now())
+                .ip2LocRequestSuccess(false)
+                .weatherApiRequestSuccess(false)
+                .build();
+    }
+
+    private WeatherData mapWeatherAndLocationDataResponse(final WeatherDataDO weatherDataEntity) {
         return WeatherData.builder()
                 .lastUpdated(weatherDataEntity.getLastUpdated())
                 .isDay(weatherDataEntity.isDay())
@@ -154,4 +186,16 @@ public class WeatherServiceImpl implements WeatherService {
                         .build())
                 .build();
     }
+
+    private WeatherData mapLocationDataResponse(final WeatherDataDO weatherDataEntity) {
+        return WeatherData.builder()
+                .location(WeatherData.Location.builder()
+                        .city(weatherDataEntity.getCity())
+                        .latitude(weatherDataEntity.getLatitude())
+                        .longitude(weatherDataEntity.getLongitude())
+                        .country(weatherDataEntity.getCountry())
+                        .build())
+                .build();
+    }
+
 }

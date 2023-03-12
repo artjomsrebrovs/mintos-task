@@ -1,8 +1,10 @@
 package com.mintos.task.client.Ip2Loc.response;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class Ip2LocResponse {
 
     private boolean success;
@@ -10,6 +12,7 @@ public class Ip2LocResponse {
     private Location location;
 
     @Data
+    @Builder
     public static class Location {
 
         private String city;
@@ -21,6 +24,7 @@ public class Ip2LocResponse {
         private Country country;
 
         @Data
+        @Builder
         public static class Country {
 
             private String name;

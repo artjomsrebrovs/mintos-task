@@ -26,19 +26,20 @@ public class WeatherDataDO {
     @Column(name = "req_date", nullable = false)
     private LocalDateTime requestDate;
 
-    @Column(name = "req_success", nullable = false)
-    private boolean requestSuccess;
+    @Column(name = "ip2loc_req_success", nullable = false)
+    private boolean ip2LocRequestSuccess;
 
-    @Column(length = 50, nullable = false)
+    @Column(name = "weather_api_req_success", nullable = false)
+    private boolean weatherApiRequestSuccess;
+
+    @Column(length = 50)
     private String city;
 
-    @Column(nullable = false)
     private float latitude;
 
-    @Column(nullable = false)
     private float longitude;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 50)
     private String country;
 
     @Column(name = "last_updated")
