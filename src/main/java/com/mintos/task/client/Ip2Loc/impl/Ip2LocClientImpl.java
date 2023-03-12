@@ -47,9 +47,9 @@ public class Ip2LocClientImpl implements Ip2LocClient {
 
             return locationDataResponse;
 
-        } catch (RestClientException e) {
+        } catch (RestClientException | IllegalStateException e) {
             final String errorMessage = String.format("Ip2Loc API client exception: %s", e);
-            log.log(Level.SEVERE, errorMessage);
+            log.log(Level.SEVERE, errorMessage, e);
             return GenericResponse.<LocationDataTO>builder().errorMessage(errorMessage).build();
         }
     }

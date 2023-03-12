@@ -18,7 +18,7 @@ import java.util.logging.Level;
 public class WeatherApiClientImpl implements WeatherApiClient {
 
     @Value("${weather.api.key}")
-    private String WeatherApiKey;
+    private String weatherApiKey;
 
     private final RestTemplate restTemplate;
 
@@ -29,7 +29,7 @@ public class WeatherApiClientImpl implements WeatherApiClient {
     @Override
     public GenericResponse<WeatherDataTO> getWeatherData(final float latitude, final float longitude) {
 
-        final String url = String.format("https://api.weatherapi.com/v1/current.json?key=%s&q=%s,%s", WeatherApiKey, latitude, longitude);
+        final String url = String.format("https://api.weatherapi.com/v1/current.json?key=%s&q=%s,%s", weatherApiKey, latitude, longitude);
 
         try {
             final ResponseEntity<WeatherApiResponse> responseEntity = restTemplate.getForEntity(url, WeatherApiResponse.class);
@@ -48,9 +48,9 @@ public class WeatherApiClientImpl implements WeatherApiClient {
 
             return weatherDataResponse;
 
-        } catch (RestClientException e) {
+        } catch (RestClientException | IllegalStateException e) {
             final String errorMessage = String.format("Weather API client exception: %s", e);
-            log.log(Level.SEVERE, errorMessage);
+            log.log(Level.SEVERE, errorMessage, e);
             return GenericResponse.<WeatherDataTO>builder().errorMessage(errorMessage).build();
         }
     }
@@ -80,7 +80,7 @@ public class WeatherApiClientImpl implements WeatherApiClient {
                 .visibleSatelliteImageryMiles(weather.getVis_miles())
                 .ultraviolet(weather.getUv())
                 .gustKilometers(weather.getGust_kph())
-                .gustMiles(weather.getVis_miles())
+                .gustMiles(weather.getGust_mph())
                 .build();
     }
 
