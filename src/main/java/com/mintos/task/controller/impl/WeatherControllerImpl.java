@@ -26,10 +26,17 @@ public class WeatherControllerImpl implements WeatherController {
     }
 
     @Override
-    @GetMapping(value = {"/weather", "/weather/{ipAddress}"})
-    public ResponseEntity<GenericResponse<WeatherData>> getWeatherData(@PathVariable(value = "ipAddress", required = false) final String ipAddress, final HttpServletRequest request) {
-        final String address = StringUtils.isNotBlank(ipAddress) ? ipAddress : request.getRemoteAddr();
-        final GenericResponse<WeatherData> weatherData = weatherService.getWeatherData(address);
+    @GetMapping("/weather")
+    public ResponseEntity<GenericResponse<WeatherData>> getWeatherData(final HttpServletRequest request) {
+        final String clientIpAddress = StringUtils.isNotBlank(request.getHeader("X-FORWARDED-FOR")) ? request.getHeader("X-FORWARDED-FOR") : request.getRemoteAddr();
+        final GenericResponse<WeatherData> weatherData = weatherService.getWeatherData(clientIpAddress);
+        return new ResponseEntity<>(weatherData, HttpStatus.OK);
+    }
+
+    @Override
+    @GetMapping("/weather/{ipAddress}")
+    public ResponseEntity<GenericResponse<WeatherData>> getWeatherData(@PathVariable(value = "ipAddress") final String ipAddress, final HttpServletRequest request) {
+        final GenericResponse<WeatherData> weatherData = weatherService.getWeatherData(ipAddress);
         return new ResponseEntity<>(weatherData, HttpStatus.OK);
     }
 

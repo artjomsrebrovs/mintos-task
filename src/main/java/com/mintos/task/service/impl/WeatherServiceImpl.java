@@ -35,7 +35,6 @@ public class WeatherServiceImpl implements WeatherService {
         this.weatherDataRepository = weatherDataRepository;
     }
 
-
     @Override
     @Cacheable(value = "weather_data", key = "#ipAddress")
     public GenericResponse<WeatherData> getWeatherData(final String ipAddress) {
@@ -200,5 +199,4 @@ public class WeatherServiceImpl implements WeatherService {
                         .build())
                 .build();
     }
-
 }

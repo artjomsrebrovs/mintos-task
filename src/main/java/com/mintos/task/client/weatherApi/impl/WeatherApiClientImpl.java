@@ -83,5 +83,4 @@ public class WeatherApiClientImpl implements WeatherApiClient {
                 .gustMiles(weather.getGust_mph())
                 .build();
     }
-
 }

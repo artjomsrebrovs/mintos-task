@@ -52,6 +52,23 @@ class WeatherControllerImplTest {
     }
 
     @Test
+    @DisplayName("Should return information about current weather conditions for header")
+    void getWeatherDataHeader() throws Exception {
+        when(weatherService.getWeatherData(anyString())).thenReturn(GenericResponse.<WeatherData>builder().success(true).build());
+
+        mockMvc.perform(get("/weather")
+                .header("X-FORWARDED-FOR", "8.8.8.8"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true));
+
+        final InOrder inOrder = Mockito.inOrder(weatherService);
+        inOrder.verify(weatherService, times(1)).getWeatherData("8.8.8.8");
+        verifyNoMoreInteractions(weatherService);
+    }
+
+    @Test
     @DisplayName("Should return information about current weather conditions for given address")
     void getWeatherDataGivenAddress() throws Exception {
         when(weatherService.getWeatherData(anyString())).thenReturn(GenericResponse.<WeatherData>builder().success(true).build());

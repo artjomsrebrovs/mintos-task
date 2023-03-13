@@ -143,6 +143,4 @@ class WeatherApiClientImplTest {
         assertThat("Weather result error message should not be null", result.getErrorMessage(), is(notNullValue()));
         assertThat("Weather result response should not null", result.getResponse(), is(nullValue()));
     }
-
-
 }
