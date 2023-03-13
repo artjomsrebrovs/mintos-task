@@ -49,11 +49,11 @@ determine current weather conditions using the coordinates of the IP
 > ```
 > Or on Azure Container Instance:
 > ```jvm
-> ...
+> weatherdata.ayeybtc2hqajc6dp.swedencentral.azurecontainer.io:8080/h2
 > ```
 > With a following credentials:
 > ```jvm
-> database name: weather-data-h2-db
+> jdbc url: jdbc:h2:./weather-data-h2-db
 > username: admin
 > password: pass
 > ```
@@ -66,12 +66,12 @@ determine current weather conditions using the coordinates of the IP
 - Application containerization
 > Dockerfile with openjdk 17 is located in deploy/docker directory, built image pushed into Docker Hub repository: 
 > ```jvm
-> docker pull artyom366/weather_app:v4
+> docker pull artyom366/weather_app:v5
 > ```
 - Deployment
 > The application is deployed on Azure Container Instance and accessible here: 
 > ```jvm
-> ...
+> weatherdata.ayeybtc2hqajc6dp.swedencentral.azurecontainer.io:8080/weather/
 > ```
 - JAR executable 
 > Jar application file is located in deploy/docker directory
