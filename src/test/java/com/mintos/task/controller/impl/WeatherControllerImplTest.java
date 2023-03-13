@@ -5,6 +5,8 @@ import com.mintos.task.controller.response.WeatherData;
 import com.mintos.task.service.WeatherService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,7 +19,7 @@ import java.util.Arrays;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -34,8 +36,8 @@ class WeatherControllerImplTest {
     private WeatherService weatherService;
 
     @Test
-    @DisplayName("Should return information about current weather conditions")
-    void getWeatherData() throws Exception {
+    @DisplayName("Should return information about current weather conditions for remote address")
+    void getWeatherDataRemoteAddress() throws Exception {
         when(weatherService.getWeatherData(anyString())).thenReturn(GenericResponse.<WeatherData>builder().success(true).build());
 
         mockMvc.perform(get("/weather"))
@@ -43,6 +45,26 @@ class WeatherControllerImplTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true));
+
+        final InOrder inOrder = Mockito.inOrder(weatherService);
+        inOrder.verify(weatherService, times(1)).getWeatherData(any(String.class));
+        verifyNoMoreInteractions(weatherService);
+    }
+
+    @Test
+    @DisplayName("Should return information about current weather conditions for given address")
+    void getWeatherDataGivenAddress() throws Exception {
+        when(weatherService.getWeatherData(anyString())).thenReturn(GenericResponse.<WeatherData>builder().success(true).build());
+
+        mockMvc.perform(get("/weather/8.8.8.8"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success").value(true));
+
+        final InOrder inOrder = Mockito.inOrder(weatherService);
+        inOrder.verify(weatherService, times(1)).getWeatherData("8.8.8.8");
+        verifyNoMoreInteractions(weatherService);
     }
 
     @Test
@@ -60,5 +82,9 @@ class WeatherControllerImplTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].day").value(true))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[1].day").value(true));
+
+        final InOrder inOrder = Mockito.inOrder(weatherService);
+        inOrder.verify(weatherService, times(1)).getWeatherDataRecords();
+        verifyNoMoreInteractions(weatherService);
     }
 }

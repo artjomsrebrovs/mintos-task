@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface WeatherController {
 
-    ResponseEntity<GenericResponse<WeatherData>> getWeatherData(HttpServletRequest request);
+    ResponseEntity<GenericResponse<WeatherData>> getWeatherData(String ipAddress, HttpServletRequest request);
 
     ResponseEntity<List<WeatherData>> getWeatherDataRecords();
 }

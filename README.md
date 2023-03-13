@@ -44,3 +44,8 @@ determine current weather conditions using the coordinates of the IP
 > The request and response data is stored in 1st normal form allowing quick and easy historical analysis.
 - DB schema versioning should be implemented
 > Database schema versioning is done with Flyway.
+- Application containerization
+> Dockerfile with opnjdk 17 is located deploy/docker directory, built image pushed into Docker Hub repository: 
+> ```jvm
+> docker pull artyom366/weather_app 
+> ```
