@@ -2,11 +2,13 @@ package com.mintos.task.controller.response;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@EqualsAndHashCode
 public class WeatherData {
 
     private LocalDateTime lastUpdated;
@@ -27,6 +29,7 @@ public class WeatherData {
 
     @Data
     @Builder
+    @EqualsAndHashCode
     public static class Location {
 
         private String city;
@@ -40,6 +43,7 @@ public class WeatherData {
 
     @Data
     @Builder
+    @EqualsAndHashCode
     public static class Temperature {
 
         private float temperatureCelsius;
@@ -53,6 +57,7 @@ public class WeatherData {
 
     @Data
     @Builder
+    @EqualsAndHashCode
     public static class Wind {
 
         private float windSpeedMiles;
@@ -71,6 +76,7 @@ public class WeatherData {
 
     @Data
     @Builder
+    @EqualsAndHashCode
     public static class Pressure {
 
         private float pressureMillibars;
@@ -84,6 +90,7 @@ public class WeatherData {
 
     @Data
     @Builder
+    @EqualsAndHashCode
     public static class Visibility {
 
         private int humidity;

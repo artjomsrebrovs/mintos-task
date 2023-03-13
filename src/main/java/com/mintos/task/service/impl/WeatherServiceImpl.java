@@ -11,6 +11,7 @@ import com.mintos.task.transfer.LocationDataTO;
 import com.mintos.task.transfer.WeatherDataTO;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,7 +35,9 @@ public class WeatherServiceImpl implements WeatherService {
         this.weatherDataRepository = weatherDataRepository;
     }
 
+
     @Override
+    @Cacheable(value = "weather_data", key = "#ipAddress")
     public GenericResponse<WeatherData> getWeatherData(final String ipAddress) {
         final GenericResponse<LocationDataTO> locationDataResponse = ip2LocClient.getLocationData(ipAddress);
 

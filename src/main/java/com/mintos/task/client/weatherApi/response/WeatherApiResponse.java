@@ -1,19 +1,25 @@
 package com.mintos.task.client.weatherApi.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class WeatherApiResponse {
 
     private Current current;
 
     @Data
     @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Current {
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
@@ -63,6 +69,8 @@ public class WeatherApiResponse {
 
         @Data
         @Builder
+        @AllArgsConstructor
+        @NoArgsConstructor
         public static class Condition {
 
             private String text;
